@@ -1,6 +1,4 @@
 Nabaztag-messenger
-Nabby - Nabaztag rabbit messagenger Project created by Raj Bose, July 2020
+Nabby - Nabaztag rabbit messagenger Project created by Raj Bose, September 2022
 
-This project was created to convert an old non functioning NABAZTAG rabbit into a messaging system connected on Wifi. Features are:
-
-MP3 pla
+This project was created to crete tiny versions of the original NABAZTAG rabbit. These tiny versions called NABBY's are part of a home messaging and sensor system connected on Wifi.
