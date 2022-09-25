@@ -1,6 +1,7 @@
 #include <HardwareSerial.h>
 //#include <dfplayer.h>
 #include "Parsers.h"
+#include "arduino.h"
 
 //extern DFPlayer mp3;
 String version;
@@ -34,7 +35,16 @@ void getInfo(char **values, int valueCount)
   else
   {
     Serial.print("   ===> Software version Nabby-tiny: ");
-    Serial.print(version);
+    Serial.println(version);
+     Serial.begin(115200);
+  Serial.print("MOSI: ");
+  Serial.println(MOSI);
+  Serial.print("MISO: ");
+  Serial.println(MISO);
+  Serial.print("SCK: ");
+  Serial.println(SCK);
+  Serial.print("SS: ");
+  Serial.println(SS);  
   }
 }
 
