@@ -25,7 +25,7 @@
 
 #define MP3_SERIAL_SPEED 9600  // DFPlayer Mini suport only 9600-baud
 #define MP3_SERIAL_TIMEOUT 100 // average DFPlayer response timeout 100msec..200msec
-DFPlayer mp3;                  // connect DFPlayer RX-pin to GPIO15(TX) & DFPlayer TX-pin to GPIO13(RX)
+//DFPlayer mp3;                  // connect DFPlayer RX-pin to GPIO15(TX) & DFPlayer TX-pin to GPIO13(RX)
 uint8_t response = 0;
 #define RXD2 16
 #define TXD2 17
@@ -109,6 +109,7 @@ void setup()
   Serial.print("  /tra,n    --- select track\n");
   Serial.print("  /vol,n    --- set volume\n");
 
+/*
   mp3.begin(Serial2, MP3_SERIAL_TIMEOUT, DFPLAYER_MINI, false); // DFPLAYER_MINI see NOTE, false=no response from module after the command
 
   delay(2000);
@@ -124,7 +125,7 @@ void setup()
  // delay(500);
   mp3.playTrack(2); // play track #1, donâ€™t copy 0003.mp3 and then 0001.mp3, because 0003.mp3 will be played firts
  // delay(500);
-
+*/
   // Serial2.begin(9600, SERIAL_8N1, 16, 17);  // MP3 interface
 
   // connectWifi();  // connect to WiFi access point

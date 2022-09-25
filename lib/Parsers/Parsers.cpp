@@ -1,8 +1,8 @@
 #include <HardwareSerial.h>
-#include <dfplayer.h>
+//#include <dfplayer.h>
 #include "Parsers.h"
 
-extern DFPlayer mp3;
+//extern DFPlayer mp3;
 String version;
 
 void parsers(String versie)
@@ -48,7 +48,7 @@ void selectTrack(char **values, int valueCount)
     int jj;
     sscanf(values[1], "%d", &jj);
     Serial.printf("   ===> Selected track: %d", jj);
-    mp3.playTrack(jj);
+ //   mp3.playTrack(jj);
     delay(500);
   }
 }
@@ -63,7 +63,7 @@ void setVolume(char **values, int valueCount)
     int jj;
     sscanf(values[1], "%d", &jj);
     Serial.printf("   ===> Volume set to: %d", jj);
-    mp3.setVolume(jj); // 0..30, module persists volume on power failure
+ //   mp3.setVolume(jj); // 0..30, module persists volume on power failure
     delay(500);
   }
 }
