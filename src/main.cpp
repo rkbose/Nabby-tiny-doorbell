@@ -22,6 +22,9 @@
 #include <DynamicCommandParser.h>
 #include <Parsers.h>
 
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7735.h>
+#include <SPI.h>
 
 #define MP3_SERIAL_SPEED 9600  // DFPlayer Mini suport only 9600-baud
 #define MP3_SERIAL_TIMEOUT 100 // average DFPlayer response timeout 100msec..200msec
@@ -29,6 +32,23 @@
 uint8_t response = 0;
 #define RXD2 16
 #define TXD2 17
+
+// the 1.8 inch TFT display connections
+// Display controller: ST7735. 
+// 1.8" SPI TFT LCD 
+//     LED  - 3V3
+//     SCK  - GPIO 22 
+//     SDA  -  GPIO 21 
+//     A0(DC) - GPIO 13 
+//     RESET  -  GPIO 14 
+//     CS   - GPIO 12 
+//     GND  - 0V 
+//     VCC  - 3V3
+// pin 11 = MOSI, pin 12 = MISO, pin 13 = SCK
+#define TFT_CS  12  // Chip select line for TFT display
+#define TFT_DC  13  // Data/command line for TFT
+#define TFT_RST 14  // Reset line for TFT (or connect to +5V)
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 
 WiFiMulti wifiMulti;
@@ -137,6 +157,11 @@ void setup()
   dcp.addParser("mvp", multipleVariableParser);
   dcp.addParser("tra", selectTrack);
   dcp.addParser("vol", setVolume);
+
+  // initialize TFT display
+   // Initialize 1.8" TFT
+  tft.initR(INITR_BLACKTAB);   // initialize ST7735S chip, black tab
+   tft.fillScreen(ST7735_BLACK);
 
   Serial.println("end of setup()");
 }

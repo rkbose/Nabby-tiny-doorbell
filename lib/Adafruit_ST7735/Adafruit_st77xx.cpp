@@ -22,13 +22,15 @@
   MIT license, all text above must be included in any redistribution
  **************************************************************************/
 
+#include <SPI.h>
 #include "Adafruit_ST77xx.h"
+#include "Adafruit_GFX.h"
 #include <limits.h>
 #ifndef ARDUINO_STM32_FEATHER
 #include "pins_arduino.h"
 #include "wiring_private.h"
 #endif
-#include <SPI.h>
+
 
 #define SPI_DEFAULT_FREQ 32000000 ///< Default SPI data clock frequency
 
