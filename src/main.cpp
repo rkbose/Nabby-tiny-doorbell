@@ -11,7 +11,7 @@
 // You should have received a copy of the GNU General Public License along with Nabby-tiny. If not, see <https://www.gnu.org/licenses/>.
 //..
      
-#define VERSION "23September2022a DEV" 
+#define VERSION "2October2022a DEV" 
 #include <HardwareSerial.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -34,17 +34,18 @@ uint8_t response = 0;
 #define TXD2 17
 
 // the 1.8 inch TFT display connections
-// Display controller: ST7735. 
+// Display controller: ST7735 
 // 1.8" SPI TFT LCD 
-//     LED  - 3V3
-//     SCK  - GPIO 22 
-//     SDA  -  GPIO 21 
-//     A0(DC) - GPIO 13 
-//     RESET  -  GPIO 14 
-//     CS   - GPIO 12 
-//     GND  - 0V 
-//     VCC  - 3V3
-// pin 11 = MOSI, pin 12 = MISO, pin 13 = SCK
+//     LED        - 3V3
+//     SCK        - GPIO 18 
+//     SDA (MOSI) -  GPIO 23 
+//     A0(DC)     - GPIO 13 
+//     RESET      -  GPIO 14 
+//     CS         - GPIO 12 
+//     GND        - 0V 
+//     VCC        - 3V3
+// (MISO - pin 19 is not used)
+
 #define TFT_CS  12  // Chip select line for TFT display
 #define TFT_DC  13  // Data/command line for TFT
 #define TFT_RST 14  // Reset line for TFT (or connect to +5V)
@@ -105,12 +106,10 @@ void connectWifi()
   Serial.printf("UDP server on port %d\n", 1234);
 }
 
-
 String levelString = "xxxxxxxxxxxxxx";
 
 // Initialize the data parser using the start, end and delimiting character
 DynamicCommandParser dcp('/', 0x0D, ',');
-
 
 void setup()
 {
@@ -161,22 +160,22 @@ void setup()
    // Initialize 1.8" TFT
   tft.initR(INITR_BLACKTAB);   // initialize ST7735S chip, black tab
   tft.fillScreen(ST7735_BLACK);
-  delay(500);
+ // delay(500);
   tft.setRotation(2);
   tft.setTextSize(2);
   tft.setTextColor(ST7735_RED);
   tft.setCursor(0, 10);
-  tft.print("Hallo Raj ");
-  tft.print(" \n");
+  tft.println("Hallo Raj ");
   
-   tft.setTextSize(1);
+  tft.setTextSize(1);
+  tft.println(VERSION);
+  tft.printf("\n");
+
   tft.setTextColor(ST77XX_WHITE);
-  tft.println("Sketch has been");
-  tft.println("running for: ");
+  tft.printf("Run time: %d mSec\n",millis());
   //tft.setTextColor(ST77XX_MAGENTA);
-  tft.print(millis());
-  tft.setTextColor(ST77XX_WHITE);
-  tft.print(" seconds.");
+//  tft.println(millis());
+  //tft.setTextColor(ST77XX_WHITE);
   Serial.println("end of setup()");
 }
 
