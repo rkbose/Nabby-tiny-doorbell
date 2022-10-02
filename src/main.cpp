@@ -50,7 +50,6 @@ uint8_t response = 0;
 #define TFT_RST 14  // Reset line for TFT (or connect to +5V)
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
-
 WiFiMulti wifiMulti;
 
 void connectWifi()
@@ -161,8 +160,23 @@ void setup()
   // initialize TFT display
    // Initialize 1.8" TFT
   tft.initR(INITR_BLACKTAB);   // initialize ST7735S chip, black tab
-   tft.fillScreen(ST7735_BLACK);
-
+  tft.fillScreen(ST7735_BLACK);
+  delay(500);
+  tft.setRotation(2);
+  tft.setTextSize(2);
+  tft.setTextColor(ST7735_RED);
+  tft.setCursor(0, 10);
+  tft.print("Hallo Raj ");
+  tft.print(" \n");
+  
+   tft.setTextSize(1);
+  tft.setTextColor(ST77XX_WHITE);
+  tft.println("Sketch has been");
+  tft.println("running for: ");
+  //tft.setTextColor(ST77XX_MAGENTA);
+  tft.print(millis());
+  tft.setTextColor(ST77XX_WHITE);
+  tft.print(" seconds.");
   Serial.println("end of setup()");
 }
 
