@@ -1,15 +1,21 @@
+//
+// Copyright 2022, Raj Bose
+//
+// This file is part of Nabby-tiny. This is the doorbell unit.
+// Nabby-tiny is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+// Nabby-tiny is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+// You should have received a copy of the GNU General Public License along with Nabby-tiny. If not, see <https://www.gnu.org/licenses/>.
+//..
+
 #include <HardwareSerial.h>
 //#include <dfplayer.h>
 #include "Parsers.h"
 #include "arduino.h"
+#include <Adafruit_ST7735.h>
 
 //extern DFPlayer mp3;
-String version;
-
-void parsers(String versie)
-{
-  version = versie;
-}
+extern String version;
+extern Adafruit_ST7735 tft;
 
 // Parser for the MVP command
 void multipleVariableParser(char **values, int valueCount)
@@ -36,7 +42,10 @@ void getInfo(char **values, int valueCount)
   {
     Serial.print("   ===> Software version Nabby-tiny: ");
     Serial.println(version);
-     Serial.begin(115200);
+    tft.setTextSize(1);
+    tft.setTextColor(ST7735_YELLOW , ST7735_BLACK);
+    tft.setCursor(5, 70);
+    tft.printf("Run time: %d mSec\n",millis());
   }
 }
 
