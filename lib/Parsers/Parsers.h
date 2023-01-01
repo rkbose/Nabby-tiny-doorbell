@@ -10,9 +10,10 @@
 #ifndef PARSERS_h
 #define PARSERS_h
 
-void multipleVariableParser(char **values, int valueCount);
-void getInfo(char **values, int valueCount);
-void selectTrack(char **values, int valueCount);
-void setVolume(char **values, int valueCount);
+void printParserCommands(void);
+String multipleVariableParser(char **values, int valueCount, bool udppackets);
+String getInfo(char **values, int valueCount, bool udppackets);
+String selectTrack(char **values, int valueCount, bool udppackets);
+String setVolume(char **values, int valueCount, bool udppackets);
 
 #endif
