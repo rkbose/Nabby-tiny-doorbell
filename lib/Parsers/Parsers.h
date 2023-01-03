@@ -13,7 +13,6 @@
 void printParserCommands(void);
 String multipleVariableParser(char **values, int valueCount, bool udppackets);
 String getInfo(char **values, int valueCount, bool udppackets);
-String selectTrack(char **values, int valueCount, bool udppackets);
-String setVolume(char **values, int valueCount, bool udppackets);
+
 
 #endif

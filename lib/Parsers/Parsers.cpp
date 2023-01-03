@@ -23,8 +23,6 @@ void printParserCommands(void)
   Serial.print("\n   ===> Commands:\n");
   Serial.print("  /inf      --- shows information\n");
   Serial.print("  /mvp,x,x  --- dummy command\n");
-  Serial.print("  /tra,n    --- select track\n");
-  Serial.print("  /vol,n    --- set volume\n");
 }
 
 /**************************************************************************/
@@ -69,7 +67,7 @@ String getInfo(char **values, int valueCount, bool udppackets)
     if (!udppackets)
     {
       Serial.print("   ===> Software version Nabby-tiny: ");
-      Serial.println(version);
+      Serial.print(version);
       tft.setTextSize(1);
       tft.setTextColor(ST7735_YELLOW, ST7735_BLACK);
       tft.setCursor(5, 70);
@@ -80,56 +78,3 @@ String getInfo(char **values, int valueCount, bool udppackets)
   return (buffer);
 }
 
-/**************************************************************************/
-/*
-    Parser for track selection. Requires one parameter: the selected track.
-    NOTE:
-    - On serial stream will print selected track
-    - On UDP stream will command completed
-*/
-/**************************************************************************/
-String selectTrack(char **values, int valueCount, bool udppackets)
-{
-  if (valueCount != 2)
-  {
-    if (!udppackets)
-      Serial.print("   ===> selectTrack requires one parameter.");
-  }
-  else
-  {
-    int jj;
-    sscanf(values[1], "%d", &jj);
-    if (!udppackets)
-      Serial.printf("   ===> Selected track: %d", jj);
-    //   mp3.playTrack(jj);
-    delay(500);
-  }
-  return ("[TRC done] ");
-}
-
-/**************************************************************************/
-/*
-    Parser for volume setting. Requires one parameter: the volume 0..30.
-    NOTE:
-    - On serial stream will print command completed
-    - On UDP stream will command completed
-*/
-/**************************************************************************/
-String setVolume(char **values, int valueCount, bool udppackets)
-{
-  if (valueCount != 2)
-  {
-    if (!udppackets)
-      Serial.println("   ===> setVolume requires one parameter.");
-  }
-  else
-  {
-    int jj;
-    sscanf(values[1], "%d", &jj);
-    if (!udppackets)
-      Serial.printf("   ===> Volume set to: %d", jj);
-    //   mp3.setVolume(jj); // 0..30, module persists volume on power failure
-    delay(500);
-  }
-  return ("[VOL done] ");
-}

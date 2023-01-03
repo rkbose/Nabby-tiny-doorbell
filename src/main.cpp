@@ -25,7 +25,7 @@
 #include <Adafruit_ST7735.h>
 #include <SPI.h>
 
-#define VERSION "1Januari2023b DEV"
+#define VERSION "3Januari2023a DEV"
 String version;
 
 #define MP3_SERIAL_SPEED 9600  // DFPlayer Mini suport only 9600-baud
@@ -143,57 +143,43 @@ void setup()
   Serial.begin(115200); // debug interface
                         //  Serial2.begin(9600, SERIAL_8N1, 16, 17);  // MP3 interface
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
-
-  Serial.print("\nNabby-tiny is starting\n");
-
-  //  Serial.println("Serial2 Txd is on pin: " + String(TXD2));
-  //  Serial.println("Serial2 Rxd is on pin: " + String(RXD2));
-
-  /*
-    mp3.begin(Serial2, MP3_SERIAL_TIMEOUT, DFPLAYER_MINI, false); // DFPLAYER_MINI see NOTE, false=no response from module after the command
-
-    delay(2000);
-    mp3.stop(); // if player was runing during ESP8266 reboot
-    delay(100);
-    mp3.reset(); // reset all setting to default
-    delay(100);
-    mp3.setSource(2); // 1=USB-Disk, 2=TF-Card, 3=Aux, 4=Sleep, 5=NOR Flash
-   // delay(500);
-    mp3.wakeup(2); // exit standby mode & initialize sourse 1=USB-Disk, 2=TF-Card, 3=Aux, 5=NOR Flash
-    delay(500);
-    mp3.setVolume(15); // 0..30, module persists volume on power failure
-   // delay(500);
-    mp3.playTrack(2); // play track #1, donâ€™t copy 0003.mp3 and then 0001.mp3, because 0003.mp3 will be played firts
-   // delay(500);
-  */
-  // Serial2.begin(9600, SERIAL_8N1, 16, 17);  // MP3 interface
+  Serial.print("\nNabby-tiny-doorbell is starting\n");
 
   connectWifi(); // connect to WiFi access point
 
   // Add the parser commands to the DynamicCommandParser
   dcp_ser.addParser("inf", getInfo);
   dcp_ser.addParser("mvp", multipleVariableParser);
-  dcp_ser.addParser("tra", selectTrack);
-  dcp_ser.addParser("vol", setVolume);
   printParserCommands();
 
   dcp_udp.addParser("inf", getInfo);
-  // initialize TFT display
-  // Initialize 1.8" TFT
+  // initialize 1.8" TFT display
   tft.initR(INITR_BLACKTAB); // initialize ST7735S chip, black tab
   tft.fillScreen(ST7735_BLACK);
-
   tft.setRotation(2);
   tft.setTextSize(2);
   tft.setTextColor(ST7735_YELLOW);
   tft.setCursor(10, 5);
   tft.println("Hallo Raj ");
 
+  tft.setTextSize(1);
+  tft.setTextColor(ST7735_YELLOW);
+  tft.setCursor(15, 25);
+  tft.println(WiFi.SSID());
+  tft.setCursor(15, 37);
+  tft.println(WiFi.localIP());
+
+ tft.drawLine(1,50,125,50,ST7735_RED);
+  tft.drawLine(125,50,125,155,ST7735_RED);
+   tft.drawLine(125,155,1,155,ST7735_RED);
+    tft.drawLine(1,155,1,50,ST7735_RED);
   Serial.println("end of setup()");
 }
 
-int xCircle = 0;
+int xCircle = 10;
+int yCircle = 60;
 int xDir = 1;
+int yDir = 1;
 char c;
 void loop()
 {
@@ -210,12 +196,18 @@ void loop()
   if ((millis() - myTime) > 15)
   {
     myTime = millis();
-    tft.drawCircle(xCircle, 30, 3, ST7735_BLACK);
+    tft.drawCircle(xCircle, yCircle, 3, ST7735_BLACK);
     xCircle += xDir;
-    if (xCircle > 125)
+    if (xCircle > 120)
       xDir = -1;
-    if (xCircle < 1)
+    if (xCircle < 8)
       xDir = 1;
-    tft.drawCircle(xCircle, 30, 3, ST7735_YELLOW);
+yCircle += yDir;
+    if (yCircle > 149)
+      yDir = -1;
+    if (yCircle < 55)
+      yDir = 1;
+
+    tft.drawCircle(xCircle, yCircle, 3, ST7735_YELLOW);
   }
 }
