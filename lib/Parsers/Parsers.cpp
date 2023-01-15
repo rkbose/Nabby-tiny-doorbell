@@ -107,13 +107,6 @@ String scanMDNSservices(char **values, int valueCount, bool udppackets)
     Serial.println("mDNS query done");
     snprintf(buffer, 100, "MDNS query sent. Nabbys found: %d", n);
 
-    //    tft.setCursor(15, 45);
-    //    tft.print("                   ");
-    tft.fillRect(15, 45, 100, 10, ST7735_BLACK);
-    tft.setCursor(15, 45);
-    tft.print("Nr Nabbys: ");
-    tft.println(allNabbys.countNabbys());
-
     if (n == 0)
     {
       Serial.println("no MDNS 'mydoorbell' services found");
@@ -125,11 +118,15 @@ String scanMDNSservices(char **values, int valueCount, bool udppackets)
       {
         Serial.printf("IPAddress[%d]: ", i);
         Serial.println(IpAddress2String(MDNS.IP(i)));
-        allNabbys.addNabby(MDNS.IP(i),MDNS.port(i),0);
+        allNabbys.addNabby(MDNS.IP(i), MDNS.port(i), 0);
         //   Serial.printf("IP address: %s\n", IpAddress2String(MDNS.IP(i)));
       }
     }
   }
+  tft.fillRect(15, 45, 100, 10, ST7735_BLACK);
+  tft.setCursor(15, 45);
+  tft.print("Nr Nabbys: ");
+  tft.println(allNabbys.countNabbys());
   return (buffer);
 }
 
@@ -144,8 +141,8 @@ String scanMDNSservices(char **values, int valueCount, bool udppackets)
 String soundDoorbell(char **values, int valueCount, bool udppackets)
 {
   char buffer[100];
-  int n=allNabbys.soundBell();
-  Serial.printf("Sent command to %d doorbell(s)\n",n);
-  snprintf(buffer, 100, "Sent command to %d doorbell(s)",n);
+  int n = allNabbys.soundBell();
+  Serial.printf("Sent command to %d doorbell(s)\n", n);
+  snprintf(buffer, 100, "Sent command to %d doorbell(s)", n);
   return (buffer);
 }
