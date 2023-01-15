@@ -21,19 +21,21 @@
 #include <DynamicCommandParser.h>
 #include <Parsers.h>
 
+#include <map>
+
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 #include <SPI.h>
+#include <Nabbys.h>
 
-#define VERSION "3Januari2023a DEV"
+#define VERSION "15Januari2023a DEV"
 String version;
 
-#define MP3_SERIAL_SPEED 9600  // DFPlayer Mini suport only 9600-baud
-#define MP3_SERIAL_TIMEOUT 100 // average DFPlayer response timeout 100msec..200msec
-// DFPlayer mp3;                  // connect DFPlayer RX-pin to GPIO15(TX) & DFPlayer TX-pin to GPIO13(RX)
+// #define MP3_SERIAL_SPEED 9600  // DFPlayer Mini suport only 9600-baud
+// #define MP3_SERIAL_TIMEOUT 100 // average DFPlayer response timeout 100msec..200msec
 uint8_t response = 0;
-#define RXD2 16
-#define TXD2 17
+// #define RXD2 16
+// #define TXD2 17
 
 // the 1.8 inch TFT display connections
 // Display controller: ST7735
@@ -52,6 +54,7 @@ uint8_t response = 0;
 #define TFT_DC 13  // Data/command line for TFT
 #define TFT_RST 14 // Reset line for TFT (or connect to +5V)
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+#define TOPLINE  60   // the top of the line, bounding the box with the bouncing ball
 
 // Initialize the command parsers using the start, end, delimiting characters
 // A seperate parser is instantiated for UDP. This is strictly not neccesry, but had adavateges like:
@@ -64,6 +67,8 @@ DynamicCommandParser dcp_udp('/', 0x0D, ','); // parser for udp
 
 AsyncUDP udp;
 WiFiMulti wifiMulti;
+
+NabbyContainer allNabbys(0);
 
 void connectWifi()
 {
@@ -99,25 +104,23 @@ void connectWifi()
   wifiMulti.addAP(SSID2, PSW2);
   wifiMulti.addAP(SSID3, PSW3);
 
-  Serial.print("Connecting Wifi -");
+  Serial.print("Connecting Wifi - ");
   while (wifiMulti.run() != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("Connected to network");
-
-  Serial.print("WiFi connected: ");
-  Serial.print(WiFi.SSID());
-  Serial.print(";   IP addr: ");
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+  Serial.print("IP addr: ");
   Serial.println(WiFi.localIP());
 
   if (MDNS.begin("Nabby-mini-doorbell")) // Host name
   {
-    MDNS.addService("doorbell", "udp", 1000); // Announce service on port x
+    MDNS.addService("doorbell", "udp", 1235); // Announce service on port x
     Serial.println("MDNS responder started");
   }
-  Serial.printf("UDP server on port %d\n", 1000);
+  Serial.printf("UDP server on port %d\n", 1235);
 } // end of connectWifi()
 
 void handleUdp()
@@ -142,17 +145,52 @@ void setup()
   version = VERSION;
   Serial.begin(115200); // debug interface
                         //  Serial2.begin(9600, SERIAL_8N1, 16, 17);  // MP3 interface
-  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
+ // Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   Serial.print("\nNabby-tiny-doorbell is starting\n");
 
   connectWifi(); // connect to WiFi access point
 
   // Add the parser commands to the DynamicCommandParser
-  dcp_ser.addParser("inf", getInfo);
-  dcp_ser.addParser("mvp", multipleVariableParser);
+  dcp_ser.addParser((char *)"inf", getInfo);
+  dcp_ser.addParser((char *)"mvp", multipleVariableParser);
+  dcp_ser.addParser((char *)"mdns", scanMDNSservices);
   printParserCommands();
 
-  dcp_udp.addParser("inf", getInfo);
+  dcp_udp.addParser((char *)"inf", getInfo);
+  dcp_udp.addParser((char *)"mdns", scanMDNSservices);
+  
+
+  // start MDNS server
+  //  if (MDNS.begin("doorbell Nabby sender")) {
+  //   Serial.println("mDNS responder started");
+  // }
+
+  IPAddress IPAddress1(192, 168, 178, 13);
+  IPAddress IPAddress2(192, 168, 178, 12);
+  IPAddress IPAddress3(192, 168, 178, 28);
+
+  struct NBdata nabbydata;
+
+  allNabbys.addNabby(IPAddress1, 11, 12);
+  allNabbys.addNabby(IPAddress2, 21, 22);
+  allNabbys.addNabby(IPAddress3, 31, 32);
+
+  Serial.printf("start find %d\n", micros());
+  nabbydata = allNabbys.findNabby(IPAddress3);
+  Serial.printf("end find %d\n", micros());
+  Serial.printf("IPAddress3 ==> aap = %d, beer= %d\n", nabbydata.aap, nabbydata.beer);
+
+
+
+  Serial.printf("Nr Nabbys = %d\n", allNabbys.countNabbys());
+  allNabbys.removeNabby(IPAddress3);
+  Serial.printf("Nr Nabbys = %d\n", allNabbys.countNabbys());
+    allNabbys.removeNabby(IPAddress3);
+  Serial.printf("Nr Nabbys = %d\n", allNabbys.countNabbys());
+  nabbydata = allNabbys.findNabby(IPAddress3);
+  Serial.printf("IPAddress3 ==> aap = %d, beer= %d\n", nabbydata.aap, nabbydata.beer);
+
+
   // initialize 1.8" TFT display
   tft.initR(INITR_BLACKTAB); // initialize ST7735S chip, black tab
   tft.fillScreen(ST7735_BLACK);
@@ -166,13 +204,16 @@ void setup()
   tft.setTextColor(ST7735_YELLOW);
   tft.setCursor(15, 25);
   tft.println(WiFi.SSID());
-  tft.setCursor(15, 37);
+  tft.setCursor(15, 35);
   tft.println(WiFi.localIP());
+  tft.setCursor(15,45);
+  tft.print("Nr Nabbys: ");
+  tft.println(allNabbys.countNabbys());
 
- tft.drawLine(1,50,125,50,ST7735_RED);
-  tft.drawLine(125,50,125,155,ST7735_RED);
-   tft.drawLine(125,155,1,155,ST7735_RED);
-    tft.drawLine(1,155,1,50,ST7735_RED);
+  tft.drawLine(1, TOPLINE, 125, TOPLINE, ST7735_RED);
+  tft.drawLine(125, TOPLINE, 125, 155, ST7735_RED);
+  tft.drawLine(125, 155, 1, 155, ST7735_RED);
+  tft.drawLine(1, 155, 1, TOPLINE, ST7735_RED);
   Serial.println("end of setup()");
 }
 
@@ -192,7 +233,7 @@ void loop()
     dcp_ser.appendChar(c);
   }
   handleUdp(); // handle and parse commands received via UDP
-  
+
   if ((millis() - myTime) > 15)
   {
     myTime = millis();
@@ -202,10 +243,10 @@ void loop()
       xDir = -1;
     if (xCircle < 8)
       xDir = 1;
-yCircle += yDir;
+    yCircle += yDir;
     if (yCircle > 149)
       yDir = -1;
-    if (yCircle < 55)
+    if (yCircle < TOPLINE+5)
       yDir = 1;
 
     tft.drawCircle(xCircle, yCircle, 3, ST7735_YELLOW);

@@ -9,20 +9,31 @@
 
 #include <HardwareSerial.h>
 // #include <dfplayer.h>
-#include "Parsers.h"
+
 #include <AsyncUDP.h>
 #include "arduino.h"
 #include <Adafruit_ST7735.h>
-
-// extern DFPlayer mp3;
+#include <ESPmDNS.h>
+#include "Parsers.h"
+#include <Nabbys.h>
 extern String version;
 extern Adafruit_ST7735 tft;
+extern NabbyContainer allNabbys;
 
 void printParserCommands(void)
 {
   Serial.print("\n   ===> Commands:\n");
   Serial.print("  /inf      --- shows information\n");
+  Serial.print("  /mdns     --- prints IP addresses of mydoorbell services\n");
   Serial.print("  /mvp,x,x  --- dummy command\n");
+}
+
+String IpAddress2String(const IPAddress &ipAddress) // convert IP addr to string
+{
+  return String(ipAddress[0]) + String(".") +
+         String(ipAddress[1]) + String(".") +
+         String(ipAddress[2]) + String(".") +
+         String(ipAddress[3]);
 }
 
 /**************************************************************************/
@@ -66,15 +77,57 @@ String getInfo(char **values, int valueCount, bool udppackets)
   {
     if (!udppackets)
     {
-      Serial.print("   ===> Software version Nabby-tiny: ");
+      Serial.print("   ===> Software version Nabby-tiny-doorbell: ");
       Serial.print(version);
-      tft.setTextSize(1);
-      tft.setTextColor(ST7735_YELLOW, ST7735_BLACK);
-      tft.setCursor(5, 70);
-      tft.printf("Run time: %d mSec\n", millis());
     }
   }
   snprintf(buffer, 100, "Nabby-tiny Software version: {%s}   [INF done]", version.c_str());
   return (buffer);
 }
 
+/**************************************************************************/
+/*
+    Parser for the MDNS services scanner command
+    NOTE:
+    - On serial stream will print the IP addresses
+    - On UDP stream:
+*/
+/**************************************************************************/
+String scanMDNSservices(char **values, int valueCount, bool udppackets)
+{
+  // find Nabbys IP addresses
+  char buffer[100];
+  int n;
+  if (valueCount > 1)
+    Serial.println("   ===> getInfo does not accept parameters.");
+  else
+  {
+    Serial.println("Sending mDNS query");
+    n = MDNS.queryService("mydoorbell", "udp"); // Send query for mydoorbell services
+    Serial.println("mDNS query done");
+    snprintf(buffer, 100, "MDNS query to doorbell sent: {%d}   [mdns done]", n);
+
+    //    tft.setCursor(15, 45);
+    //    tft.print("                   ");
+    tft.fillRect(15, 45, 100, 10, ST7735_BLACK);
+    tft.setCursor(15, 45);
+    tft.print("Nr Nabb: ");
+    tft.println(allNabbys.countNabbys());
+
+    if (n == 0)
+    {
+      Serial.println("no MDNS 'mydoorbell' services found");
+    }
+    else
+    {
+      Serial.printf("Found %d 'mydoorbell' services\n", n);
+      for (int i = 0; i < n; i++)
+      {
+        Serial.printf("IPAddress[%d]: ", i);
+        Serial.println(IpAddress2String(MDNS.IP(i)));
+        //   Serial.printf("IP address: %s\n", IpAddress2String(MDNS.IP(i)));
+      }
+    }
+  }
+  return(buffer);
+}
