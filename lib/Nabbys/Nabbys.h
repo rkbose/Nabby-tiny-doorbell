@@ -18,7 +18,7 @@
 
 struct NBdata
 {
-    int aap;
+    uint16_t port;
     int beer;
 };
 
@@ -27,17 +27,17 @@ class NabbyContainer
 public:
     NabbyContainer(int jk)
     {
-   //    Nabbys = std::map<IPAddress, NBdata>;
     }
     ~NabbyContainer()
     {
     }
 
-void addNabby(IPAddress ipa, int aap, int beer);
+void addNabby(IPAddress ipa, uint16_t port, int beer);
 void removeNabby(IPAddress ipa);
 bool existNabby(IPAddress ipa);
 NBdata findNabby(IPAddress ipa);
 int countNabbys(void);
+int soundBell(void);
 
 private:
  std::map<IPAddress, NBdata> Nabbys;

@@ -9,57 +9,77 @@
 #include <HardwareSerial.h>
 #include <string.h>
 #include <Nabbys.h>
+#include <parsers.h>
 
-
-void NabbyContainer::addNabby(IPAddress ipa, int aap, int beer)
-{ struct NBdata nabbyTemp;
-  nabbyTemp.aap = aap;
+void NabbyContainer::addNabby(IPAddress ipa, uint16_t port, int beer)
+{
+  struct NBdata nabbyTemp;
+  nabbyTemp.port = port;
   nabbyTemp.beer = beer;
 
   Nabbys.insert({ipa, nabbyTemp});
-}  
+}
 
 void NabbyContainer::removeNabby(IPAddress ipa)
 {
- Nabbys.erase(ipa);
+  Nabbys.erase(ipa);
 }
 
 bool NabbyContainer::existNabby(IPAddress ipa)
 {
   auto a = Nabbys.find(ipa);
-  if (a==Nabbys.end()) return(false);
-  else return (true);
+  if (a == Nabbys.end())
+    return (false);
+  else
+    return (true);
 }
 
 int NabbyContainer::countNabbys(void)
 {
- return(Nabbys.size());
+  return (Nabbys.size());
 }
 
 NBdata NabbyContainer::findNabby(IPAddress ipa)
 {
   NBdata result;
   auto a = Nabbys.find(ipa);
-  
+
   if (a != Nabbys.end())
-   {
-    result.aap = a->second.aap;
+  {
+    result.port = a->second.port;
     result.beer = a->second.beer;
-   }
-  else result.aap = result.beer = 0;
-  return(result);  
+  }
+  else
+    result.port = result.beer = 0;
+  return (result);
 }
 
+int NabbyContainer::soundBell(void)
+{
+  WiFiUDP wifiudp;
+  std::map<IPAddress, NBdata>::iterator it;
+  for (it = Nabbys.begin(); it != Nabbys.end(); it++)
+  {
+    // send MDN scan command
+    Serial.print("Sending ring scan cmd to:");
+    Serial.println(IpAddress2String(it->first));
+    wifiudp.beginPacket(it->first, it->second.port); // send udp packet to doorbell
+    wifiudp.print("Nabby:d.");
+    wifiudp.endPacket();
+    delay(100);
+  }
+  return (Nabbys.size());
+}
 
 //  Serial.printf("value IPAddress2= %d\n", Nabbys[IPAddress2]);
-  /*
-    Serial.println("Iterator");
-    std::map<IPAddress, NBdata>::iterator it;
-    for (it = Nabbys.begin(); it != Nabbys.end(); it++)
-    {
-      Serial.print(IpAddress2String(it->first));
-      Serial.print(": ");
-      Serial.printf("aap: %d\n", it->second.aap);
-      //Serial.println();
-    }
-    */
+/*
+  Serial.println("Iterator");
+  std::map<IPAddress, NBdata>::iterator it;
+  for (it = Nabbys.begin(); it != Nabbys.end(); it++)
+  {
+    Serial.print(IpAddress2String(it->first));
+    Serial.print(": ");
+    Serial.printf("aap: %d\n", it->second.aap);
+    //Serial.println();
+  }
+  */

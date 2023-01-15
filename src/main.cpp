@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "15Januari2023a DEV"
+#define VERSION "15Januari2023b DEV"
 String version;
 
 // #define MP3_SERIAL_SPEED 9600  // DFPlayer Mini suport only 9600-baud
@@ -154,11 +154,12 @@ void setup()
   dcp_ser.addParser((char *)"inf", getInfo);
   dcp_ser.addParser((char *)"mvp", multipleVariableParser);
   dcp_ser.addParser((char *)"mdns", scanMDNSservices);
+  dcp_ser.addParser((char *)"rng", soundDoorbell);
   printParserCommands();
 
   dcp_udp.addParser((char *)"inf", getInfo);
   dcp_udp.addParser((char *)"mdns", scanMDNSservices);
-  
+  dcp_udp.addParser((char *)"rng", soundDoorbell);
 
   // start MDNS server
   //  if (MDNS.begin("doorbell Nabby sender")) {
@@ -178,9 +179,7 @@ void setup()
   Serial.printf("start find %d\n", micros());
   nabbydata = allNabbys.findNabby(IPAddress3);
   Serial.printf("end find %d\n", micros());
-  Serial.printf("IPAddress3 ==> aap = %d, beer= %d\n", nabbydata.aap, nabbydata.beer);
-
-
+  Serial.printf("IPAddress3 ==> port = %d, beer= %d\n", nabbydata.port, nabbydata.beer);
 
   Serial.printf("Nr Nabbys = %d\n", allNabbys.countNabbys());
   allNabbys.removeNabby(IPAddress3);
@@ -188,7 +187,7 @@ void setup()
     allNabbys.removeNabby(IPAddress3);
   Serial.printf("Nr Nabbys = %d\n", allNabbys.countNabbys());
   nabbydata = allNabbys.findNabby(IPAddress3);
-  Serial.printf("IPAddress3 ==> aap = %d, beer= %d\n", nabbydata.aap, nabbydata.beer);
+  Serial.printf("IPAddress3 ==> port = %d, beer= %d\n", nabbydata.port, nabbydata.beer);
 
 
   // initialize 1.8" TFT display
