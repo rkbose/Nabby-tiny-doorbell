@@ -14,6 +14,7 @@ String IpAddress2String(const IPAddress &ipAddress);
 void printParserCommands(void);
 String multipleVariableParser(char **values, int valueCount, bool udppackets);
 String getInfo(char **values, int valueCount, bool udppackets);
+String printcmds(char **values, int valueCount, bool udppackets);
 String scanMDNSservices(char **values, int valueCount, bool udppackets);
 String soundDoorbell(char **values, int valueCount, bool udppackets);
 

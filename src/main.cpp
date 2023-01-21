@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "15Januari2023b DEV"
+#define VERSION "21Januari2023a DEV"
 String version;
 
 // #define MP3_SERIAL_SPEED 9600  // DFPlayer Mini suport only 9600-baud
@@ -150,46 +150,6 @@ void setup()
 
   connectWifi(); // connect to WiFi access point
 
-  // Add the parser commands to the DynamicCommandParser
-  dcp_ser.addParser((char *)"inf", getInfo);
-  dcp_ser.addParser((char *)"mvp", multipleVariableParser);
-  dcp_ser.addParser((char *)"mdns", scanMDNSservices);
-  dcp_ser.addParser((char *)"rng", soundDoorbell);
-  printParserCommands();
-
-  dcp_udp.addParser((char *)"inf", getInfo);
-  dcp_udp.addParser((char *)"mdns", scanMDNSservices);
-  dcp_udp.addParser((char *)"rng", soundDoorbell);
-
-  // start MDNS server
-  //  if (MDNS.begin("doorbell Nabby sender")) {
-  //   Serial.println("mDNS responder started");
-  // }
-
-  IPAddress IPAddress1(192, 168, 178, 13);
-  IPAddress IPAddress2(192, 168, 178, 12);
-  IPAddress IPAddress3(192, 168, 178, 28);
-
-  struct NBdata nabbydata;
-
-  allNabbys.addNabby(IPAddress1, 11, 12);
-  allNabbys.addNabby(IPAddress2, 21, 22);
-  allNabbys.addNabby(IPAddress3, 31, 32);
-
-  Serial.printf("start find %d\n", micros());
-  nabbydata = allNabbys.findNabby(IPAddress3);
-  Serial.printf("end find %d\n", micros());
-  Serial.printf("IPAddress3 ==> port = %d, beer= %d\n", nabbydata.port, nabbydata.beer);
-
-  Serial.printf("Nr Nabbys = %d\n", allNabbys.countNabbys());
-  allNabbys.removeNabby(IPAddress3);
-  Serial.printf("Nr Nabbys = %d\n", allNabbys.countNabbys());
-    allNabbys.removeNabby(IPAddress3);
-  Serial.printf("Nr Nabbys = %d\n", allNabbys.countNabbys());
-  nabbydata = allNabbys.findNabby(IPAddress3);
-  Serial.printf("IPAddress3 ==> port = %d, beer= %d\n", nabbydata.port, nabbydata.beer);
-
-
   // initialize 1.8" TFT display
   tft.initR(INITR_BLACKTAB); // initialize ST7735S chip, black tab
   tft.fillScreen(ST7735_BLACK);
@@ -213,7 +173,29 @@ void setup()
   tft.drawLine(125, TOPLINE, 125, 155, ST7735_RED);
   tft.drawLine(125, 155, 1, 155, ST7735_RED);
   tft.drawLine(1, 155, 1, TOPLINE, ST7735_RED);
-  Serial.println("end of setup()");
+
+  // Add the parser commands to the DynamicCommandParser
+  dcp_ser.addParser((char *)"inf", getInfo);
+  dcp_ser.addParser((char *)"?", printcmds);
+  dcp_ser.addParser((char *)"mvp", multipleVariableParser);
+  dcp_ser.addParser((char *)"mdns", scanMDNSservices);
+  dcp_ser.addParser((char *)"rng", soundDoorbell);
+  printParserCommands();
+
+  dcp_udp.addParser((char *)"inf", getInfo);
+  dcp_udp.addParser((char *)"mdns", scanMDNSservices);
+  dcp_udp.addParser((char *)"rng", soundDoorbell);
+
+  // start MDNS server
+  //  if (MDNS.begin("doorbell Nabby sender")) {
+  //   Serial.println("mDNS responder started");
+  // }
+
+  //struct NBdata nabbydata;
+
+  scanMDNSservices((char **)"", 0, false);
+
+  Serial.printf("\nend of setup()\n");
 }
 
 int xCircle = 10;
