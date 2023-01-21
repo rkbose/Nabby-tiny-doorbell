@@ -29,13 +29,15 @@
 #include <Nabbys.h>
 
 #define VERSION "21Januari2023a DEV"
+
 String version;
 
 // #define MP3_SERIAL_SPEED 9600  // DFPlayer Mini suport only 9600-baud
 // #define MP3_SERIAL_TIMEOUT 100 // average DFPlayer response timeout 100msec..200msec
-uint8_t response = 0;
 // #define RXD2 16
 // #define TXD2 17
+
+uint8_t response = 0;
 
 // the 1.8 inch TFT display connections
 // Display controller: ST7735
@@ -54,7 +56,7 @@ uint8_t response = 0;
 #define TFT_DC 13  // Data/command line for TFT
 #define TFT_RST 14 // Reset line for TFT (or connect to +5V)
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
-#define TOPLINE  60   // the top of the line, bounding the box with the bouncing ball
+#define TOPLINE  100   // the top of the line, bounding the box with the bouncing ball
 
 // Initialize the command parsers using the start, end, delimiting characters
 // A seperate parser is instantiated for UDP. This is strictly not neccesry, but had adavateges like:
@@ -199,7 +201,7 @@ void setup()
 }
 
 int xCircle = 10;
-int yCircle = 60;
+int yCircle = TOPLINE+10;
 int xDir = 1;
 int yDir = 1;
 char c;
