@@ -1,4 +1,16 @@
+//
+// Copyright 2022, Raj Bose
+//
+// This file is part of Nabby-tiny. This is the doorbell unit.
+// Nabby-tiny is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+// Nabby-tiny is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+// You should have received a copy of the GNU General Public License along with Nabby-tiny. If not, see <https://www.gnu.org/licenses/>.
+//..
+
+#include <HardwareSerial.h>
 #include "DynamicCommandParser.h"
+#include <string.h>
+#include <AsyncUDP.h>
 
 void DynamicCommandParser::addParser(char *cmd, ParserFunction function)
 {
@@ -6,6 +18,13 @@ void DynamicCommandParser::addParser(char *cmd, ParserFunction function)
   mParserLookup = (ParserFunctionLookup*)realloc(mParserLookup, (mParserLookupSize) * sizeof(ParserFunctionLookup));
   mParserLookup[mParserLookupSize-1].command = cmd;
   mParserLookup[mParserLookupSize-1].function = function;
+}
+
+void DynamicCommandParser::append(AsyncUDPPacket *pct)
+{
+  packet = pct;
+  udppackets = true;
+  append((char *)packet->data());
 }
 
 void DynamicCommandParser::append(char *str)
@@ -58,11 +77,18 @@ void DynamicCommandParser::parseBuffer()
     }
   }
 
-  for(size_t i = 0; i < mParserLookupSize; i++)
+String result = "";
+
+   for (size_t i = 0; i < mParserLookupSize; i++)
   {
-    if(strcmp(mParserLookup[i].command, parts[0]) == 0)
+    if (strcmp(mParserLookup[i].command, parts[0]) == 0)
     {
-      mParserLookup[i].function(parts, partCount);
+      result = mParserLookup[i].function(parts, partCount, udppackets);
+      if (udppackets)
+      {
+        packet->print(result);
+        udppackets = false;
+      } // return result in UDP packet
       break;
     }
   }
