@@ -165,7 +165,7 @@ void setup()
   tft.setTextColor(ST7735_YELLOW);
   tft.setCursor(15, 25);
   tft.println(WiFi.SSID());
-  tft.setCursor(15, 35);
+  tft.setCursor(30, 35);
   tft.println(WiFi.localIP());
   tft.setCursor(15,45);
   tft.print("Nr Nabbys: ");
