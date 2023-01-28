@@ -34,6 +34,7 @@ public:
 
 void addNabby(IPAddress ipa, uint16_t port, int beer);
 void removeNabby(IPAddress ipa);
+void removeAll(void);
 bool existNabby(IPAddress ipa);
 NBdata findNabby(IPAddress ipa);
 int countNabbys(void);

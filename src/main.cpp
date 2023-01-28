@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "21Januari2023a DEV"
+#define VERSION "28Januari2023a DEV"
 
 String version;
 
@@ -193,10 +193,10 @@ void setup()
   //   Serial.println("mDNS responder started");
   // }
 
-  //struct NBdata nabbydata;
 
   scanMDNSservices((char **)"", 0, false);
-
+ // IPAddress IP1(192,168,178,99);    //dummy IP address for testing
+ // allNabbys.addNabby(IP1,1,1); 
   Serial.printf("\nend of setup()\n");
 }
 
