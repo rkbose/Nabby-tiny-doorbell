@@ -138,7 +138,7 @@ String scanMDNSservices(char **values, int valueCount, bool udppackets)
     {
       Serial.printf("      Found %d 'mydoorbell' services\n", n);
       allNabbys.removeAll();   // remove all Nabbys from list
-      tft.fillRect(15, 45, 100, 10, ST7735_BLACK);
+      tft.fillRect(15, 45, 100, 50, ST7735_BLACK);
   tft.setCursor(15, 45);
   tft.printf("Nr Nabbys: %d\n",n);
       for (int i = 0; i < n; i++)
@@ -147,7 +147,7 @@ String scanMDNSservices(char **values, int valueCount, bool udppackets)
         Serial.print(IpAddress2String(MDNS.IP(i)));
         allNabbys.addNabby(MDNS.IP(i), MDNS.port(i), 0);
         tft.printf("     ");
-        tft.println(IpAddress2String(MDNS.IP(0)));
+        tft.println(IpAddress2String(MDNS.IP(i)));
       }
     }
   }
