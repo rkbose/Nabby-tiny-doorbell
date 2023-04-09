@@ -54,6 +54,11 @@ NBdata NabbyContainer::findNabby(IPAddress ipa)
   return (result);
 }
 
+void NabbyContainer::removeAll(void)
+{
+  Nabbys.clear();
+}
+
 int NabbyContainer::soundBell(void)
 {
   WiFiUDP wifiudp;
@@ -61,10 +66,10 @@ int NabbyContainer::soundBell(void)
   for (it = Nabbys.begin(); it != Nabbys.end(); it++)
   {
     // send MDN scan command
-   // Serial.print("Sending ring scan cmd to:");
-   // Serial.println(IpAddress2String(it->first));
+    // Serial.print("Sending ring scan cmd to:");
+    // Serial.println(IpAddress2String(it->first));
     wifiudp.beginPacket(it->first, it->second.port); // send udp packet to doorbell service
-    wifiudp.print("Nabby:d."); // ring the doorbell sound
+    wifiudp.print("Nabby:d.");                       // ring the doorbell sound
     wifiudp.endPacket();
     delay(100);
   }
