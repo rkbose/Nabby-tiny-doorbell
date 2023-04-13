@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "12April2023a DEV" //
+#define VERSION "13April2023a DEV" 
 
 String version;
 
@@ -139,11 +139,14 @@ void handleUdp()
   }
 }
 
-long int myTime;
+long int myTime_draw;
+long int myTime_mdnsScan;
 
 void setup()
 {
-  myTime = 0;
+  myTime_draw = millis();
+  myTime_mdnsScan = millis();
+  
   version = VERSION;
   Serial.begin(115200); // debug interface
                         //  Serial2.begin(9600, SERIAL_8N1, 16, 17);  // MP3 interface
@@ -217,9 +220,9 @@ void loop()
   }
   handleUdp(); // handle and parse commands received via UDP
 
-  if ((millis() - myTime) > 15)
+  if ((millis() - myTime_draw) > 15)
   {
-    myTime = millis();
+    myTime_draw = millis();
     tft.drawCircle(xCircle, yCircle, 3, ST7735_BLACK);
     xCircle += xDir;
     if (xCircle > 120)

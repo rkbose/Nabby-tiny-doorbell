@@ -79,7 +79,7 @@ String getInfo(char **values, int valueCount, bool udppackets)
       Serial.print(version);
     }
   }
-  snprintf(buffer, 100, "Nabby-tiny Software version: {%s}   [INF done]", version.c_str());
+  snprintf(buffer, 100, "Software version Nabby-tiny-doorbell: {%s}   [INF done]", version.c_str());
   return (buffer);
 }
 
@@ -122,7 +122,7 @@ String scanMDNSservices(char **values, int valueCount, bool udppackets)
   char buffer[100];
   int n;
   if (valueCount > 1)
-    Serial.printf("\n   ===> getInfo does not accept parameters.");
+    Serial.printf("\n   ===> scanMDNSservices does not accept parameters.");
   else
   {
     Serial.printf("\n   ===> Sending mDNS query\n");
