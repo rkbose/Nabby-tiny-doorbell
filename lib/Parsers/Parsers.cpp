@@ -145,6 +145,7 @@ String scanMDNSservices(char **values, int valueCount, bool udppackets)
       {
         Serial.printf("      IPAddress[%d]: ", i);
         Serial.print(IpAddress2String(MDNS.IP(i)));
+        Serial.printf("   - %d \n", MDNS.port(i));
         allNabbys.addNabby(MDNS.IP(i), MDNS.port(i), 0);
         tft.printf("     ");
         tft.println(IpAddress2String(MDNS.IP(i)));

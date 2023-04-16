@@ -66,10 +66,19 @@ int NabbyContainer::soundBell(void)
   for (it = Nabbys.begin(); it != Nabbys.end(); it++)
   {
     // send MDN scan command
-    // Serial.print("Sending ring scan cmd to:");
-    // Serial.println(IpAddress2String(it->first));
+    Serial.print("Sending ring scan cmd to:");
+    Serial.println(IpAddress2String(it->first));
     wifiudp.beginPacket(it->first, it->second.port); // send udp packet to doorbell service
-    wifiudp.print("Nabby:d.");                       // ring the doorbell sound
+
+    if (it->second.port == 1234)
+    {
+      wifiudp.print("Nabby:d."); // ring the doorbell sound
+    }
+    if (it->second.port == 1235)
+    {
+      wifiudp.print("/rng\r");
+    }
+
     wifiudp.endPacket();
     delay(100);
   }

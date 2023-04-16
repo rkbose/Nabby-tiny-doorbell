@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "15April2023a DEV" // .
+#define VERSION "16April2023a DEV" //
 
 String version;
 
@@ -221,8 +221,11 @@ void loop()
   }
   handleUdp(); // handle and parse commands received via UDP
 
-  if ((millis() - myTime_mdnsScan) > 10000)
+  if ((millis() - myTime_mdnsScan) > 150000)
   {
+    myTime_mdnsScan = millis();
+    scanMDNSservices((char **)"", 0, false);
+    /*
     Serial.printf("\n   ===> Sending mDNS query\n");
     n = MDNS.queryService("mydoorbell", "udp"); // Send query for mydoorbell services
     Serial.printf("        mDNS query sent\n");
@@ -231,9 +234,10 @@ void loop()
     for (int i = 0; i < n; i++)
     {
       Serial.printf("      IPAddress[%d]: ", i);
-      Serial.print(IpAddress2String(MDNS.IP(i)));
+      Serial.print(IpAddress2String(MDNS.IP(i)));  
       allNabbys.addNabby(MDNS.IP(i), MDNS.port(i), 0); 
     }
+    */
   }
 
   if ((millis() - myTime_draw) > 15)
