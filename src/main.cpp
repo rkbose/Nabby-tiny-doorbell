@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "28Januari2023a DEV" //....
+#define VERSION "16April2023b DEV" //
 
 String version;
 
@@ -56,7 +56,7 @@ uint8_t response = 0;
 #define TFT_DC 13  // Data/command line for TFT
 #define TFT_RST 14 // Reset line for TFT (or connect to +5V)
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
-#define TOPLINE  100   // the top of the line, bounding the box with the bouncing ball
+#define TOPLINE 100 // the top of the line, bounding the box with the bouncing ball
 
 // Initialize the command parsers using the start, end, delimiting characters
 // A seperate parser is instantiated for UDP. This is strictly not neccesry, but had adavateges like:
@@ -139,15 +139,18 @@ void handleUdp()
   }
 }
 
-long int myTime;
+long int myTime_draw;
+long int myTime_mdnsScan;
 
 void setup()
 {
-  myTime = 0;
+  myTime_draw = millis();
+  myTime_mdnsScan = millis();
+
   version = VERSION;
   Serial.begin(115200); // debug interface
                         //  Serial2.begin(9600, SERIAL_8N1, 16, 17);  // MP3 interface
- // Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
+                        // Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   Serial.print("\nNabby-tiny-doorbell is starting\n");
 
   connectWifi(); // connect to WiFi access point
@@ -167,7 +170,7 @@ void setup()
   tft.println(WiFi.SSID());
   tft.setCursor(30, 35);
   tft.println(WiFi.localIP());
-  tft.setCursor(15,45);
+  tft.setCursor(15, 45);
   tft.print("Nr Nabbys: ");
   tft.println(allNabbys.countNabbys());
 
@@ -193,20 +196,21 @@ void setup()
   //   Serial.println("mDNS responder started");
   // }
 
-
   scanMDNSservices((char **)"", 0, false);
- // IPAddress IP1(192,168,178,99);    //dummy IP address for testing
- // allNabbys.addNabby(IP1,1,1); 
+  // IPAddress IP1(192,168,178,99);    //dummy IP address for testing
+  // allNabbys.addNabby(IP1,1,1);
   Serial.printf("\nend of setup()\n");
 }
 
 int xCircle = 10;
-int yCircle = TOPLINE+10;
+int yCircle = TOPLINE + 10;
 int xDir = 1;
 int yDir = 1;
 char c;
 void loop()
 {
+  int n;
+
   // Serial2.print(".");
   // Serial.printf("i: %d\n", i);
   while (Serial.available() > 0)
@@ -217,9 +221,28 @@ void loop()
   }
   handleUdp(); // handle and parse commands received via UDP
 
-  if ((millis() - myTime) > 15)
+  if ((millis() - myTime_mdnsScan) > 150000)
   {
-    myTime = millis();
+    myTime_mdnsScan = millis();
+    scanMDNSservices((char **)"", 0, false);
+    /*
+    Serial.printf("\n   ===> Sending mDNS query\n");
+    n = MDNS.queryService("mydoorbell", "udp"); // Send query for mydoorbell services
+    Serial.printf("        mDNS query sent\n");
+    Serial.printf("      Found %d 'mydoorbell' services\n", n);
+    allNabbys.removeAll(); // remove all Nabbys from list
+    for (int i = 0; i < n; i++)
+    {
+      Serial.printf("      IPAddress[%d]: ", i);
+      Serial.print(IpAddress2String(MDNS.IP(i)));  
+      allNabbys.addNabby(MDNS.IP(i), MDNS.port(i), 0); 
+    }
+    */
+  }
+
+  if ((millis() - myTime_draw) > 15)
+  {
+    myTime_draw = millis();
     tft.drawCircle(xCircle, yCircle, 3, ST7735_BLACK);
     xCircle += xDir;
     if (xCircle > 120)
@@ -229,7 +252,7 @@ void loop()
     yCircle += yDir;
     if (yCircle > 149)
       yDir = -1;
-    if (yCircle < TOPLINE+5)
+    if (yCircle < TOPLINE + 5)
       yDir = 1;
 
     tft.drawCircle(xCircle, yCircle, 3, ST7735_YELLOW);
