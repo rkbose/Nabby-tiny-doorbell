@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "16April2023a DEV" //
+#define VERSION "16April2023b DEV" //
 
 String version;
 
