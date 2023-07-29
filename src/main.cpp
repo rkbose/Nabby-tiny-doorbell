@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "16April2023c DEV" //
+#define VERSION "29Juli2023 DEV" //
 
 String version;
 
@@ -51,11 +51,17 @@ uint8_t response = 0;
 //     GND        - 0V
 //     VCC        - 3V3
 // (MISO - pin 19 is not used)
-
+#define SPI_FREQ 10000 // SPI data clock frequency
 #define TFT_CS 12  // Chip select line for TFT display
 #define TFT_DC 13  // Data/command line for TFT
 #define TFT_RST 14 // Reset line for TFT (or connect to +5V)
+#define TFT_MOSI 23 // MOSI line for TFT
+#define TFT_SCLK 18 // SCLK line for TFT
+
+
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+//Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
+
 #define TOPLINE 100 // the top of the line, bounding the box with the bouncing ball
 
 // Initialize the command parsers using the start, end, delimiting characters
@@ -155,7 +161,11 @@ void setup()
 
   connectWifi(); // connect to WiFi access point
 
+ // pinMode(TFT_RST, OUTPUT);
+ // pinMode(TFT_MOSI, OUTPUT);
+
   // initialize 1.8" TFT display
+ // tft.initSPI(SPI_FREQ, SPI_MODE0);  
   tft.initR(INITR_BLACKTAB); // initialize ST7735S chip, black tab
   tft.fillScreen(ST7735_BLACK);
   tft.setRotation(2);
