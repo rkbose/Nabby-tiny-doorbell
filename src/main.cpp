@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "29Juli2023 DEV" //
+#define VERSION "30Juli2023 DEV" //
 
 String version;
 
@@ -51,7 +51,7 @@ uint8_t response = 0;
 //     GND        - 0V
 //     VCC        - 3V3
 // (MISO - pin 19 is not used)
-#define SPI_FREQ 10000 // SPI data clock frequency
+//#define SPI_FREQ 10000 // SPI data clock frequency
 #define TFT_CS 12  // Chip select line for TFT display
 #define TFT_DC 13  // Data/command line for TFT
 #define TFT_RST 14 // Reset line for TFT (or connect to +5V)
@@ -172,7 +172,7 @@ void setup()
   tft.setTextSize(2);
   tft.setTextColor(ST7735_YELLOW);
   tft.setCursor(10, 5);
-  tft.println("Hallo Raj ");
+  tft.println("Doorbell");
 
   tft.setTextSize(1);
   tft.setTextColor(ST7735_YELLOW);
@@ -195,6 +195,7 @@ void setup()
   dcp_ser.addParser((char *)"mvp", multipleVariableParser);
   dcp_ser.addParser((char *)"mdns", scanMDNSservices);
   dcp_ser.addParser((char *)"rng", soundDoorbell);
+  dcp_ser.addParser((char *)"chk", checkIpAddress);
   printParserCommands();
 
   dcp_udp.addParser((char *)"inf", getInfo);

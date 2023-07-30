@@ -23,10 +23,12 @@ extern NabbyContainer allNabbys;
 void printParserCommands(void)
 {
   Serial.printf("\n   ===> Commands:\n");
-  Serial.print("      /inf      --- shows information\n");
-  Serial.print("      /mdns     --- scans mydoorbell services and prints found IP addresses\n");
-  Serial.print("      /rng      --- sends ring cmd to all found doorbell services\n");
-  Serial.print("      /mvp,x,x  --- dummy command");
+  Serial.print("      /inf         --- shows information\n");
+  Serial.print("      /?           --- print commands\n");
+  Serial.print("      /mdns        --- scans mydoorbell services and prints found IP addresses\n");
+  Serial.print("      /rng         --- sends ring cmd to all found doorbell services\n");
+  Serial.print("      /chk,x,x,x,x --- check if IP address is registered");
+  Serial.print("      /mvp,x,x     --- dummy command");
 }
 
 String IpAddress2String(const IPAddress &ipAddress) // convert IP addr to string
@@ -50,7 +52,7 @@ String multipleVariableParser(char **values, int valueCount, bool udppackets)
   Serial.printf("\n   ===> multipleVariableParser:\n");
   for (int i = 1; i < valueCount; i++)
   {
-    Serial.printf("      values[%d]: %s\n",i, values[i]);
+    Serial.printf("      values[%d]: %s\n", i, values[i]);
     int jj;
     sscanf(values[i], "%d", &jj);
     Serial.printf("      the int value is %d\n", jj);
@@ -107,7 +109,6 @@ String printcmds(char **values, int valueCount, bool udppackets)
   return (buffer);
 }
 
-
 /**************************************************************************/
 /*
     Parser for the MDNS services scanner command
@@ -127,7 +128,7 @@ String scanMDNSservices(char **values, int valueCount, bool udppackets)
   {
     Serial.printf("\n   ===> Sending mDNS query\n");
     n = MDNS.queryService("mydoorbell", "udp"); // Send query for mydoorbell services
-        Serial.printf("        mDNS query sent\n");
+    Serial.printf("        mDNS query sent\n");
     snprintf(buffer, 100, "MDNS query sent. Nabbys found: %d", n);
 
     if (n == 0)
@@ -137,10 +138,11 @@ String scanMDNSservices(char **values, int valueCount, bool udppackets)
     else
     {
       Serial.printf("      Found %d 'mydoorbell' services\n", n);
-      allNabbys.removeAll();   // remove all Nabbys from list
+      allNabbys.removeAll(); // remove all Nabbys from list
       tft.fillRect(15, 45, 100, 50, ST7735_BLACK);
-  tft.setCursor(15, 45);
-  tft.printf("Nr Nabbys: %d\n",n);
+      tft.setCursor(15, 45);
+      tft.printf("Nr Nabbys: %d\n", n);
+
       for (int i = 0; i < n; i++)
       {
         Serial.printf("      IPAddress[%d]: ", i);
@@ -152,11 +154,11 @@ String scanMDNSservices(char **values, int valueCount, bool udppackets)
       }
     }
   }
- // tft.fillRect(15, 45, 100, 10, ST7735_BLACK);
- // tft.setCursor(15, 45);
- // tft.print("Nr Nabbys: ");
- // tft.println(allNabbys.countNabbys());
- // tft.print(IpAddress2String(MDNS.IP(0)));
+  // tft.fillRect(15, 45, 100, 10, ST7735_BLACK);
+  // tft.setCursor(15, 45);
+  // tft.print("Nr Nabbys: ");
+  // tft.println(allNabbys.countNabbys());
+  // tft.print(IpAddress2String(MDNS.IP(0)));
   return (buffer);
 }
 
@@ -175,4 +177,40 @@ String soundDoorbell(char **values, int valueCount, bool udppackets)
   Serial.printf("\n   ===> Sent command to %d doorbell(s)", n);
   snprintf(buffer, 100, "Sent command to %d doorbell(s)", n);
   return (buffer);
+}
+
+/**************************************************************************/
+/*
+   Parser for checkIpAddress command. This will checkk if the IP address
+   supplied by 4 parameters is registred in the Nabby list.
+    NOTE:
+    - On serial stream will print YES or NO
+    - On UDP stream: will return YES or NO
+*/
+/**************************************************************************/
+String checkIpAddress(char **values, int valueCount, bool udppackets)
+{
+  Serial.printf("\n   ===> checkIPAddress parser %d:\n",valueCount);
+  if (valueCount != 5)
+  {
+    Serial.printf("   checkIpAddress requires 4 parameters");
+    return ("   checkIpAddress is done   ");
+  }
+  for (int i = 1; i < valueCount; i++)
+  {
+    Serial.printf("      values[%d]: %s\n", i, values[i]);
+    int jj;
+    sscanf(values[i], "%d", &jj);
+    Serial.printf("      the int value is %d\n", jj);
+  }
+
+  int octet1, octet2, octet3, octet4;
+  sscanf(values[1], "%d", &octet1);
+  sscanf(values[2], "%d", &octet2);
+  sscanf(values[3], "%d", &octet3);
+  sscanf(values[4], "%d", &octet4);
+  IPAddress IPA(octet1, octet2, octet3, octet4);
+  Serial.printf("IPA entered found:   %d\n", allNabbys.existNabby(IPA));
+
+  return ("   checkIpAddress is done");
 }

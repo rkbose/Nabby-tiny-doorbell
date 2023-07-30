@@ -17,5 +17,6 @@ String getInfo(char **values, int valueCount, bool udppackets);
 String printcmds(char **values, int valueCount, bool udppackets);
 String scanMDNSservices(char **values, int valueCount, bool udppackets);
 String soundDoorbell(char **values, int valueCount, bool udppackets);
+String checkIpAddress(char **values, int valueCount, bool udppackets);
 
 #endif
