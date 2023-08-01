@@ -231,12 +231,12 @@ void loop()
     dcp_ser.appendChar(c);
   }
   handleUdp(); // handle and parse commands received via UDP
-
+/*
   if ((millis() - myTime_mdnsScan) > 150000)
   {
     myTime_mdnsScan = millis();
     scanMDNSservices((char **)"", 0, false);
-    /*
+  
     Serial.printf("\n   ===> Sending mDNS query\n");
     n = MDNS.queryService("mydoorbell", "udp"); // Send query for mydoorbell services
     Serial.printf("        mDNS query sent\n");
@@ -248,9 +248,9 @@ void loop()
       Serial.print(IpAddress2String(MDNS.IP(i)));  
       allNabbys.addNabby(MDNS.IP(i), MDNS.port(i), 0); 
     }
-    */
+    
   }
-
+*/
   if ((millis() - myTime_draw) > 15)
   {
     myTime_draw = millis();

@@ -27,7 +27,7 @@ void printParserCommands(void)
   Serial.print("      /?           --- print commands\n");
   Serial.print("      /mdns        --- scans mydoorbell services and prints found IP addresses\n");
   Serial.print("      /rng         --- sends ring cmd to all found doorbell services\n");
-  Serial.print("      /chk,x,x,x,x --- check if IP address is registered");
+  Serial.print("      /chk,x,x,x,x --- check if IP address is registered\n");
   Serial.print("      /mvp,x,x     --- dummy command");
 }
 
@@ -190,18 +190,10 @@ String soundDoorbell(char **values, int valueCount, bool udppackets)
 /**************************************************************************/
 String checkIpAddress(char **values, int valueCount, bool udppackets)
 {
-  Serial.printf("\n   ===> checkIPAddress parser %d:\n",valueCount);
   if (valueCount != 5)
   {
-    Serial.printf("   checkIpAddress requires 4 parameters");
+    Serial.printf("\n   ===> checkIpAddress requires 4 parameters");
     return ("   checkIpAddress is done   ");
-  }
-  for (int i = 1; i < valueCount; i++)
-  {
-    Serial.printf("      values[%d]: %s\n", i, values[i]);
-    int jj;
-    sscanf(values[i], "%d", &jj);
-    Serial.printf("      the int value is %d\n", jj);
   }
 
   int octet1, octet2, octet3, octet4;
@@ -210,7 +202,9 @@ String checkIpAddress(char **values, int valueCount, bool udppackets)
   sscanf(values[3], "%d", &octet3);
   sscanf(values[4], "%d", &octet4);
   IPAddress IPA(octet1, octet2, octet3, octet4);
-  Serial.printf("IPA entered found:   %d\n", allNabbys.existNabby(IPA));
-
+  if (allNabbys.existNabby(IPA))
+   Serial.printf("\n   ===> IP address %s found", IPA.toString().c_str()); 
+  else
+Serial.printf("\n   ===> IPA address %s not found",IPA.toString().c_str()); 
   return ("   checkIpAddress is done");
 }
