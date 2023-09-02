@@ -20,6 +20,11 @@ extern String version;
 extern Adafruit_ST7735 tft;
 extern NabbyContainer allNabbys;
 
+/**************************************************************************/
+/*
+   Prints explanation on all commands possible on serial.
+*/
+/**************************************************************************/
 void printParserCommands(void)
 {
   Serial.printf("\n   ===> Commands:\n");
@@ -31,7 +36,12 @@ void printParserCommands(void)
   Serial.print("      /mvp,x,x     --- dummy command");
 }
 
-String IpAddress2String(const IPAddress &ipAddress) // convert IP addr to string
+/**************************************************************************/
+/*
+   Converts IP address to string.
+*/
+/**************************************************************************/
+String IpAddress2String(const IPAddress &ipAddress) 
 {
   return String(ipAddress[0]) + String(".") +
          String(ipAddress[1]) + String(".") +
