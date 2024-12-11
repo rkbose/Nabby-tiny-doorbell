@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "2Sept2023 DEV" //
+#define VERSION "2Sept2023b" //
 
 String version;
 
@@ -109,8 +109,8 @@ void connectWifi()
     */
 
   wifiMulti.addAP(SSID1, PSW1);
-  wifiMulti.addAP(SSID2, PSW2);
-  wifiMulti.addAP(SSID3, PSW3);
+  //wifiMulti.addAP(SSID2, PSW2);
+  //wifiMulti.addAP(SSID3, PSW3);
 
   Serial.print("Connecting Wifi - ");
   while (wifiMulti.run() != WL_CONNECTED)
