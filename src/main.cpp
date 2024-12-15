@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "2Sept2023b" //
+#define VERSION "2Sept2023c" //
 
 String version;
 
@@ -65,9 +65,9 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 #define TOPLINE 100 // the top of the line, bounding the box with the bouncing ball
 
 // Initialize the command parsers using the start, end, delimiting characters
-// A seperate parser is instantiated for UDP. This is strictly not neccesry, but had adavateges like:
+// A separate parser is instantiated for UDP. This is strictly not neccesry, but had adavateges like:
 //    - the udp parser can have different commands (or delimiting chars) then the serial parser, or a subset/superset of commands
-//    - with one parser there is a very small chance serial commands mix up with udp commands. Seperation resolves this
+//    - with one parser there is a very small chance serial commands mix up with udp commands. Separation resolves this
 // Downside is memory space.
 //
 DynamicCommandParser dcp_ser('/', 0x0D, ','); // parser for serial
@@ -109,8 +109,8 @@ void connectWifi()
     */
 
   wifiMulti.addAP(SSID1, PSW1);
-  //wifiMulti.addAP(SSID2, PSW2);
-  //wifiMulti.addAP(SSID3, PSW3);
+  //wifiMulti.addAP(SSID2, PSW2); //more routers can be registered. The strongest RSI will be chosen. Note: the SSID needs to be defined in secret.h
+  //wifiMulti.addAP(SSID3, PSW3); //more routers can be registered. The strongest RSI will be chosen. Note: the SSID needs to be defined in secret.h
 
   Serial.print("Connecting Wifi - ");
   while (wifiMulti.run() != WL_CONNECTED)
@@ -211,6 +211,9 @@ void setup()
   // IPAddress IP1(192,168,178,99);    //dummy IP address for testing
   // allNabbys.addNabby(IP1,1,1);
   Serial.printf("\nend of setup()\n");
+
+  pinMode(22, INPUT_PULLUP);  //DIO-22 is input for doorbell button
+
 }
 
 int xCircle = 10;
@@ -218,6 +221,10 @@ int yCircle = TOPLINE + 10;
 int xDir = 1;
 int yDir = 1;
 char c;
+int buttonTime = 0;  // stores time when button is pressed
+bool buttonDisable =  false;
+#define BUTTON_TIMEOUT 2000 // timeout in milliSec
+
 void loop()
 {
   int n;
@@ -251,10 +258,19 @@ void loop()
     
   }
 */
+
+  int inputVal = digitalRead(22);  // read doorbell button input (LOW is pressed)
+  if ((inputVal == LOW) && (buttonDisable == false)) {
+    buttonDisable = true;
+    buttonTime = millis();
+  }
+  if (buttonDisable && (millis() - buttonTime) > BUTTON_TIMEOUT) buttonDisable = false; 
+
+
   if ((millis() - myTime_draw) > 15)
   {
     myTime_draw = millis();
-    tft.drawCircle(xCircle, yCircle, 3, ST7735_BLACK);
+    tft.fillCircle(xCircle, yCircle, 3, ST7735_BLACK);
     xCircle += xDir;
     if (xCircle > 120)
       xDir = -1;
@@ -265,7 +281,10 @@ void loop()
       yDir = -1;
     if (yCircle < TOPLINE + 5)
       yDir = 1;
-
-    tft.drawCircle(xCircle, yCircle, 3, ST7735_YELLOW);
+    
+    if (buttonDisable)
+      tft.fillCircle(xCircle, yCircle, 3, ST7735_RED);
+    else
+      tft.drawCircle(xCircle, yCircle, 3, ST7735_YELLOW);
   }
 }

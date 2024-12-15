@@ -70,11 +70,11 @@ int NabbyContainer::soundBell(void)
     Serial.println(IpAddress2String(it->first));
     wifiudp.beginPacket(it->first, it->second.port); // send udp packet to doorbell service
 
-    if (it->second.port == 1234)
+    if (it->second.port == 1234) // the original Nabby listened on port 1234, so legacy commands to be used
     {
       wifiudp.print("Nabby:d."); // ring the doorbell sound
     }
-    if (it->second.port == 1235)
+    if (it->second.port == 1235) // the updated protocol is in Nabby's listening on 1235
     {
       wifiudp.print("/rng\r");
     }
