@@ -28,7 +28,7 @@
 #include <SPI.h>
 #include <Nabbys.h>
 
-#define VERSION "2Sept2023c" //
+#define VERSION "15Dec2024a" //
 
 String version;
 
@@ -263,6 +263,7 @@ void loop()
   if ((inputVal == LOW) && (buttonDisable == false)) {
     buttonDisable = true;
     buttonTime = millis();
+    allNabbys.soundBell();
   }
   if (buttonDisable && (millis() - buttonTime) > BUTTON_TIMEOUT) buttonDisable = false; 
 
