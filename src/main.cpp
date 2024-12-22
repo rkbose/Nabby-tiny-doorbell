@@ -27,15 +27,11 @@
 #include <Adafruit_ST7735.h>
 #include <SPI.h>
 #include <Nabbys.h>
+#include <Nabby.h> // drawing of Nabby
 
-#define VERSION "15Dec2024a" //
+#define VERSION "21Dec2024a" 
 
 String version;
-
-// #define MP3_SERIAL_SPEED 9600  // DFPlayer Mini suport only 9600-baud
-// #define MP3_SERIAL_TIMEOUT 100 // average DFPlayer response timeout 100msec..200msec
-// #define RXD2 16
-// #define TXD2 17
 
 uint8_t response = 0;
 
@@ -51,16 +47,16 @@ uint8_t response = 0;
 //     GND        - 0V
 //     VCC        - 3V3
 // (MISO - pin 19 is not used)
-//#define SPI_FREQ 10000 // SPI data clock frequency
-#define TFT_CS 12  // Chip select line for TFT display
-#define TFT_DC 13  // Data/command line for TFT
-#define TFT_RST 14 // Reset line for TFT (or connect to +5V)
+// #define SPI_FREQ 10000 // SPI data clock frequency
+
+#define TFT_CS 12   // Chip select line for TFT display
+#define TFT_DC 13   // Data/command line for TFT
+#define TFT_RST 14  // Reset line for TFT (or connect to +5V)
 #define TFT_MOSI 23 // MOSI line for TFT
 #define TFT_SCLK 18 // SCLK line for TFT
 
-
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
-//Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
+// Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 
 #define TOPLINE 100 // the top of the line, bounding the box with the bouncing ball
 
@@ -109,8 +105,8 @@ void connectWifi()
     */
 
   wifiMulti.addAP(SSID1, PSW1);
-  //wifiMulti.addAP(SSID2, PSW2); //more routers can be registered. The strongest RSI will be chosen. Note: the SSID needs to be defined in secret.h
-  //wifiMulti.addAP(SSID3, PSW3); //more routers can be registered. The strongest RSI will be chosen. Note: the SSID needs to be defined in secret.h
+  // wifiMulti.addAP(SSID2, PSW2); //more routers can be registered. The strongest RSI will be chosen. Note: the SSID needs to be defined in secret.h
+  // wifiMulti.addAP(SSID3, PSW3); //more routers can be registered. The strongest RSI will be chosen. Note: the SSID needs to be defined in secret.h
 
   Serial.print("Connecting Wifi - ");
   while (wifiMulti.run() != WL_CONNECTED)
@@ -147,11 +143,13 @@ void handleUdp()
 
 long int myTime_draw;
 long int myTime_mdnsScan;
+long int myTime_sentPing;
 
 void setup()
 {
   myTime_draw = millis();
   myTime_mdnsScan = millis();
+  myTime_sentPing = millis();
 
   version = VERSION;
   Serial.begin(115200); // debug interface
@@ -161,11 +159,11 @@ void setup()
 
   connectWifi(); // connect to WiFi access point
 
- // pinMode(TFT_RST, OUTPUT);
- // pinMode(TFT_MOSI, OUTPUT);
+  // pinMode(TFT_RST, OUTPUT);
+  // pinMode(TFT_MOSI, OUTPUT);
 
   // initialize 1.8" TFT display
- // tft.initSPI(SPI_FREQ, SPI_MODE0);  
+  // tft.initSPI(SPI_FREQ, SPI_MODE0);
   tft.initR(INITR_BLACKTAB); // initialize ST7735S chip, black tab
   tft.fillScreen(ST7735_BLACK);
   tft.setRotation(2);
@@ -183,11 +181,15 @@ void setup()
   tft.setCursor(15, 45);
   tft.print("Nr Nabbys: ");
   tft.println(allNabbys.countNabbys());
-
-  tft.drawLine(1, TOPLINE, 125, TOPLINE, ST7735_RED);
+  
+  // draw rectangle. Sreenwitd is 125.
+  tft.drawLine(36, TOPLINE, 125, TOPLINE, ST7735_RED);
   tft.drawLine(125, TOPLINE, 125, 155, ST7735_RED);
-  tft.drawLine(125, 155, 1, 155, ST7735_RED);
-  tft.drawLine(1, 155, 1, TOPLINE, ST7735_RED);
+  tft.drawLine(125, 155, 36, 155, ST7735_RED);
+  tft.drawLine(36, 155, 36, TOPLINE, ST7735_RED);
+
+ //  tft.drawBitmap(1, TOPLINE, epd_bitmap_nabaztag_BW_50x83, 49, 82, ST7735_WHITE);
+   tft.drawBitmap(1, TOPLINE, epd_bitmap_nabaztag_BW_50x83, 30, 50, ST7735_WHITE);
 
   // Add the parser commands to the DynamicCommandParser
   dcp_ser.addParser((char *)"inf", getInfo);
@@ -212,25 +214,22 @@ void setup()
   // allNabbys.addNabby(IP1,1,1);
   Serial.printf("\nend of setup()\n");
 
-  pinMode(22, INPUT_PULLUP);  //DIO-22 is input for doorbell button
-
+  pinMode(22, INPUT_PULLUP); // DIO-22 is input for doorbell button
 }
 
-int xCircle = 10;
+int xCircle = 125-20;  // startposition is right edge minus 20 pxs
 int yCircle = TOPLINE + 10;
 int xDir = 1;
 int yDir = 1;
 char c;
-int buttonTime = 0;  // stores time when button is pressed
-bool buttonDisable =  false;
+int buttonTime = 0; // stores time when button is pressed
+bool buttonDisable = false;
 #define BUTTON_TIMEOUT 2000 // timeout in milliSec
 
 void loop()
 {
   int n;
 
-  // Serial2.print(".");
-  // Serial.printf("i: %d\n", i);
   while (Serial.available() > 0)
   {
     c = Serial.read();
@@ -238,35 +237,43 @@ void loop()
     dcp_ser.appendChar(c);
   }
   handleUdp(); // handle and parse commands received via UDP
-/*
-  if ((millis() - myTime_mdnsScan) > 150000)
-  {
-    myTime_mdnsScan = millis();
-    scanMDNSservices((char **)"", 0, false);
-  
-    Serial.printf("\n   ===> Sending mDNS query\n");
-    n = MDNS.queryService("mydoorbell", "udp"); // Send query for mydoorbell services
-    Serial.printf("        mDNS query sent\n");
-    Serial.printf("      Found %d 'mydoorbell' services\n", n);
-    allNabbys.removeAll(); // remove all Nabbys from list
-    for (int i = 0; i < n; i++)
+  /*
+    if ((millis() - myTime_mdnsScan) > 150000)
     {
-      Serial.printf("      IPAddress[%d]: ", i);
-      Serial.print(IpAddress2String(MDNS.IP(i)));  
-      allNabbys.addNabby(MDNS.IP(i), MDNS.port(i), 0); 
-    }
-    
-  }
-*/
+      myTime_mdnsScan = millis();
+      scanMDNSservices((char **)"", 0, false);
 
-  int inputVal = digitalRead(22);  // read doorbell button input (LOW is pressed)
-  if ((inputVal == LOW) && (buttonDisable == false)) {
+      Serial.printf("\n   ===> Sending mDNS query\n");
+      n = MDNS.queryService("mydoorbell", "udp"); // Send query for mydoorbell services
+      Serial.printf("        mDNS query sent\n");
+      Serial.printf("      Found %d 'mydoorbell' services\n", n);
+      allNabbys.removeAll(); // remove all Nabbys from list
+      for (int i = 0; i < n; i++)
+      {
+        Serial.printf("      IPAddress[%d]: ", i);
+        Serial.print(IpAddress2String(MDNS.IP(i)));
+        allNabbys.addNabby(MDNS.IP(i), MDNS.port(i), 0);
+      }
+
+    }
+  */
+
+  if ((millis() - myTime_sentPing) > 10000)
+  {
+    myTime_sentPing = millis();
+  //  Serial.printf("Send PNG to all Nabbys\n");
+    allNabbys.sendPing();
+  }
+
+  int inputVal = digitalRead(22); // read doorbell button input (LOW is pressed)
+  if ((inputVal == LOW) && (buttonDisable == false))
+  {
     buttonDisable = true;
     buttonTime = millis();
     allNabbys.soundBell();
   }
-  if (buttonDisable && (millis() - buttonTime) > BUTTON_TIMEOUT) buttonDisable = false; 
-
+  if (buttonDisable && (millis() - buttonTime) > BUTTON_TIMEOUT)
+    buttonDisable = false;
 
   if ((millis() - myTime_draw) > 15)
   {
@@ -275,14 +282,14 @@ void loop()
     xCircle += xDir;
     if (xCircle > 120)
       xDir = -1;
-    if (xCircle < 8)
+    if (xCircle < 36+6)  //allow 6 pixels for ball radius
       xDir = 1;
     yCircle += yDir;
     if (yCircle > 149)
       yDir = -1;
-    if (yCircle < TOPLINE + 5)
+    if (yCircle < TOPLINE + 6)  //allow 6 pixels for ball radius
       yDir = 1;
-    
+
     if (buttonDisable)
       tft.fillCircle(xCircle, yCircle, 3, ST7735_RED);
     else

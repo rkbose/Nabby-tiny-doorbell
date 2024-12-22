@@ -85,6 +85,26 @@ int NabbyContainer::soundBell(void)
   return (Nabbys.size());
 }
 
+int NabbyContainer::sendPing(void)
+{
+  WiFiUDP wifiudp;
+  std::map<IPAddress, NBdata>::iterator it;
+  for (it = Nabbys.begin(); it != Nabbys.end(); it++)
+  {
+    Serial.print("Sending Ping to:");
+    Serial.println(IpAddress2String(it->first));
+    wifiudp.beginPacket(it->first, it->second.port); // send udp packet to doorbell service
+
+    if (it->second.port == 1235) // the updated protocol is in Nabby's listening on 1235
+    {
+      wifiudp.print("/png\r");
+    }
+
+    wifiudp.endPacket();
+    delay(100);
+  }
+  return (Nabbys.size());
+}
 //  Serial.printf("value IPAddress2= %d\n", Nabbys[IPAddress2]);
 /*
   Serial.println("Iterator");

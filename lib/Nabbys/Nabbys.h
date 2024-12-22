@@ -39,6 +39,7 @@ bool existNabby(IPAddress ipa);
 NBdata findNabby(IPAddress ipa);
 int countNabbys(void);
 int soundBell(void);
+int sendPing(void);
 
 private:
  std::map<IPAddress, NBdata> Nabbys;
