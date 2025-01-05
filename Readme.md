@@ -1,4 +1,4 @@
-Nabaztag-messenger
+Nabaztag-messenger doorbell unit
 
 Nabaztag rabbit messagenger Project created by Raj Bose, September 2022
 
