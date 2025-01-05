@@ -6,5 +6,6 @@ This project was created to create tiny versions of the original NABAZTAG rabbit
 
 This Doorbell cose supports both legacy Nabby's using the legacy commands, and Tiny Nabby's updated command set.
 
-See the Nabby-tiny repository for an extisive description. (https://github.com/rkbose/Nabby-tiny/wiki/Nabby-Rabbit-home-automation-%E2%80%90-Rabbit-as-doorbell-unit)
+See the Nabby-tiny repository for an extisive description. (https://github.com/rkbose/Nabby-tiny/wiki/Nabby-Rabbit-home-automation-%E2%80%90-Rabbit-as-doorbell-unit).
+See wiki for pictures and details.
 
