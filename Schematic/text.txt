@@ -1,0 +1,1 @@
+These are the hardware schematic diagrams of both Nabby and the doorbell unit. Note: the doorbell unit is from the previous version, the latest version with TFT display is still to be created.
